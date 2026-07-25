@@ -1,0 +1,19 @@
+1. way to write a lambda
+    (x:x)
+2. way to apply value to lambda
+    ((x:x) y)
+3. way to assign a lambda to a variable
+    p = (x:x)
+    (p x)
+4. Two datatypes: HEX and Concell
+    Concell -> [x,y]
+    HEX -> .6E.
+
+
+Language will feature a
+
+2 = (y:(x:(y (y x))))
+2 = (y,x:(y (y x)))
+
+True = (x,y:x)
+False = (x,y:y)
