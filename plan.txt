@@ -6,7 +6,7 @@ Goal of the language: To make a usable functional programming language with as f
     (x,y:(x y))
 2. way to apply value to lambda
     ((x:x) y)
-3. way to assign a lambda to a variable
+3. way to assign a value to a variable
     p = (x:x)
     (p x)
 4. Two datatypes: HEX and Concell
