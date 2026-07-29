@@ -7,7 +7,7 @@ Goal of the language: To make a usable functional programming language with as f
 2. way to apply value to lambda
     ((x:x) y)
 3. way to assign a value to a variable
-    p = (x:x)
+    (p = (x:x))
     (p x)
 4. Two datatypes: HEX and Concell
     Concell -> [x y]
@@ -24,17 +24,17 @@ Goal of the language: To make a usable functional programming language with as f
 
 Language will feature a "standard library" that translates common programming words into their proper lambda calculus functions, like True and False or nil. To allow for low-level programming as that is the eventual goal of the programming language, it will have basic ram management commands (look into ways to do it in a lambda-like way) built-in, hopefully being the only built-in functions/keywords that aren't just lambda functions.
 
-True = (x,y:x)
-False = (x,y:y)
-nil = (x:x)
+(True = (x,y:x))
+(False = (x,y:y))
+(nil = (x:x))
 
 Example programming excerpt:
 
-running = True
+(running = True)
 
-print_if_running = (text:(running (dolist [
+(print_if_running = (text:(running (dolist [
         (print text)
         (print "program ran and sent user text")
     ])))
-
+)
 (print_if_running "hello world")

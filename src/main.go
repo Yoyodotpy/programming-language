@@ -5,39 +5,34 @@ import (
 	"os"
 )
 
-var file_text_unprocessed = ""
-
 func main() {
-	file_text_unprocessed = read_file(os.Args[1])
+	file_text_unprocessed := read_file(os.Args[1])
 	lexed := lexer(file_text_unprocessed)
-	fmt.Println(lexed)
+	p := parser{
+		tokens: lexed,
+		pos:    0,
+	}
+	ast := p.parse()
+	for _, i := range ast {
+		fmt.Println(print_ast(i))
+	}
 }
 
-func lexer(code string) []string {
-	var lexed []string
-	var var_name []rune
-
-	flush := func() {
-		if len(var_name) != 0 {
-			lexed = append(lexed, string(var_name))
-			var_name = nil
-		}
+func print_ast(n node) string {
+	switch v := n.(type) {
+	case var_node:
+		return v.label
+	case hex_node:
+		return fmt.Sprintf("'%s'", v.val)
+	case lambda_node:
+		return fmt.Sprintf("(%s : %s)", v.param, print_ast(v.body))
+	case apply_node:
+		return fmt.Sprintf("(%s %s)", print_ast(v.function), print_ast(v.arg))
+	case concell_node:
+		return fmt.Sprintf("[%s %s]", print_ast(v.val1), print_ast(v.val2))
+	case define_node:
+		return fmt.Sprintf("(%s = %s)", v.label, print_ast(v.value))
+	default:
+		return "UNKNOWN_NODE"
 	}
-
-	for _, char := range code {
-		switch char {
-		case '(', ')', '[', ']', ',', '\'', ':', '\n':
-			flush()
-			lexed = append(lexed, string(char))
-		case '\r', ' ', '\t':
-			flush()
-			//ignore \r to stop potential problems on windows
-		default:
-			var_name = append(var_name, char)
-		}
-	}
-
-	flush()
-
-	return lexed
 }

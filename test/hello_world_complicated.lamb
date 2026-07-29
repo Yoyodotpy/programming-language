@@ -1,8 +1,9 @@
-running = True
+(running = True)
 
-print_if_running = (text:(running (dolist [
+(print_if_running = (text,text2:(running (dolist [
         (print text)
-        (print "program ran and sent user text")
+        (print text2)
+        (print 4)
     ])))
-
-(print_if_running "hello world")
+)
+(print_if_running "hello","hello2")
