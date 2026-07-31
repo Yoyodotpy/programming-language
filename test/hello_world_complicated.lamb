@@ -1,4 +1,4 @@
-(running = True)
+(running = true)
 
 (print_if_running = (text,text2:(running (do
         (print text)

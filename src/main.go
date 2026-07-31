@@ -14,12 +14,14 @@ func main() {
 	}
 	ast := p.parse()
 
-	fmt.Println("----- Input -----")
-	fmt.Println(file_text_unprocessed)
-	fmt.Println("----- Output -----")
+	global_env := &env{
+		parent: nil,
+		val:    make(map[string]value),
+	}
+	init_primitives(global_env)
 
-	for _, i := range ast {
-		fmt.Println(print_ast(i))
+	for _, n := range ast {
+		global_env.eval(n)
 	}
 }
 
