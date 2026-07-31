@@ -1,6 +1,9 @@
 package main
 
-import "slices"
+import (
+	"slices"
+	"strconv"
+)
 
 // NODE TYPES
 type node interface {
@@ -8,7 +11,7 @@ type node interface {
 }
 
 type hex_node struct {
-	val string
+	val int64
 }
 
 type var_node struct {
@@ -69,12 +72,17 @@ func (p *parser) parse_node() node {
 		return p.parse_concell()
 	}
 	if tok == "(" {
-		if p.pos+2 < len(p.tokens) {
-			switch p.tokens[p.pos+2] {
-			case ":":
-				return p.parse_lambda()
+		for _, curtok := range p.tokens[p.pos+1:] {
+			if curtok == "(" || curtok == ")" {
+				break
+			}
+			switch curtok {
 			case "=":
 				return p.parse_define()
+			case ":":
+				return p.parse_lambda()
+			case "do":
+				return p.parse_do()
 			}
 		}
 		return p.parse_apply()
@@ -82,18 +90,46 @@ func (p *parser) parse_node() node {
 	if tok == "'" {
 		return p.parse_hex()
 	}
+	if len(tok) >= 1 && tok[0] == '"' {
+		return p.parse_string()
+	}
+	if str_is_int(tok) {
+		return p.parse_int()
+	}
 
 	p.advance()
 	return var_node{label: tok}
 }
 
 func (p *parser) parse_lambda() lambda_node {
+	var params []string
 	var node lambda_node
+
 	p.advance()
-	node.param = p.advance()
+	for p.current() != ":" && p.current() != "" {
+		tok := p.advance()
+		if tok != "," {
+			params = append(params, tok)
+		}
+	}
 	p.advance()
 	node.body = p.parse_node()
 	p.advance()
+
+	if len(params) >= 1 {
+		slices.Reverse(params)
+		node.param = params[0]
+		params = params[1:]
+		for i := range len(params) {
+			node = lambda_node{
+				param: params[i],
+				body:  node,
+			}
+		}
+	} else {
+		node.param = "_"
+	}
+
 	return node
 }
 
@@ -108,18 +144,127 @@ func (p *parser) parse_define() define_node {
 }
 
 func (p *parser) parse_apply() apply_node {
-	var node apply_node
+	var applynode apply_node
+	var args []node
+
 	p.advance()
-	node.function = p.parse_node()
-	node.arg = p.parse_node()
+	applynode.function = p.parse_node()
+	for p.current() != ")" && p.current() != "" {
+		if p.current() == "," {
+			p.advance()
+			continue
+		}
+		args = append(args, p.parse_node())
+	}
 	p.advance()
+
+	if len(args) >= 1 {
+		applynode.arg = args[0]
+		args = args[1:]
+		for i := range len(args) {
+			applynode = apply_node{
+				function: applynode,
+				arg:      args[i],
+			}
+		}
+	} else {
+		applynode.arg = var_node{label: "_"}
+	}
+
+	return applynode
+}
+
+func (p *parser) parse_do() node {
+	var args []node
+
+	p.advance()
+	p.advance()
+	for p.current() != ")" && p.current() != "" {
+		if p.current() == "," {
+			p.advance()
+			continue
+		}
+		args = append(args, p.parse_node())
+	}
+	p.advance()
+
+	if len(args) < 1 {
+		return var_node{label: "nil"}
+	}
+
+	slices.Reverse(args)
+
+	node := args[0]
+	args = args[1:]
+
+	for _, cur := range args {
+		def_node, is_def := cur.(define_node)
+		if is_def {
+			node = apply_node{
+				function: lambda_node{
+					param: def_node.label,
+					body:  node,
+				},
+				arg: def_node.value,
+			}
+		} else {
+			node = apply_node{
+				function: lambda_node{
+					param: "_",
+					body:  node,
+				},
+				arg: cur,
+			}
+		}
+	}
+	return node
+}
+
+func (p *parser) parse_int() node {
+	str := p.advance()
+	numb, err := strconv.Atoi(str)
+	checkerr(err)
+
+	return hex_node{
+		val: int64(numb),
+	}
+}
+
+func (p *parser) parse_string() node {
+	var list []node
+	str := p.advance()
+	str = str[1 : len(str)-1]
+
+	if len(str) < 1 {
+		return var_node{label: "nil"}
+	}
+
+	for _, r := range str {
+		node_val := hex_node{val: int64(r)}
+		list = append(list, node_val)
+	}
+
+	slices.Reverse(list)
+
+	var node node = list[0]
+	list = list[1:]
+
+	for i := range len(list) {
+		node = concell_node{
+			val1: list[i],
+			val2: node,
+		}
+	}
+
 	return node
 }
 
 func (p *parser) parse_hex() hex_node {
 	var node hex_node
 	p.advance()
-	node.val = p.advance()
+	var err error
+	node.val, err = strconv.ParseInt(p.advance(), 16, 64)
+	checkerr(err)
 	p.advance()
 	return node
 }

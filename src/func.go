@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 )
 
 func checkerr(err error) {
@@ -22,4 +23,9 @@ func read_file(path string) string {
 	checkerr(err)
 
 	return string(text)
+}
+
+func str_is_int(str string) bool {
+	_, err := strconv.Atoi(str)
+	return err == nil
 }

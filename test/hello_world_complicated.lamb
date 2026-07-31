@@ -1,9 +1,9 @@
 (running = True)
 
-(print_if_running = (text,text2:(running (dolist [
+(print_if_running = (text,text2:(running (do
         (print text)
         (print text2)
         (print 4)
-    ])))
+    )))
 )
-(print_if_running "hello","hello2")
+(print_if_running "hello world","Hello world again:,=")

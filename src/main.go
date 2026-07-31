@@ -13,6 +13,11 @@ func main() {
 		pos:    0,
 	}
 	ast := p.parse()
+
+	fmt.Println("----- Input -----")
+	fmt.Println(file_text_unprocessed)
+	fmt.Println("----- Output -----")
+
 	for _, i := range ast {
 		fmt.Println(print_ast(i))
 	}
@@ -23,7 +28,7 @@ func print_ast(n node) string {
 	case var_node:
 		return v.label
 	case hex_node:
-		return fmt.Sprintf("'%s'", v.val)
+		return fmt.Sprintf("'%x'", v.val)
 	case lambda_node:
 		return fmt.Sprintf("(%s : %s)", v.param, print_ast(v.body))
 	case apply_node:
