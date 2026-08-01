@@ -1,9 +1,8 @@
 (running = true)
 
-(print_if_running = (text,text2:(running (do
-        (print text)
-        (print text2)
+(print_if_running = (text,times:(running (do
+        ((c times) print text)
         (print 4)
     )))
 )
-(print_if_running "hello world","Hello world again:,=")
+(print_if_running "hello world",20)

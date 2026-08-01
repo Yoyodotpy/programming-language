@@ -41,7 +41,7 @@ func init_primitives(e *env) {
 				fmt.Println(v)
 			}
 		case hex_val:
-			fmt.Printf("'%x'", v.val)
+			fmt.Printf("'%x' \n", v.val)
 		default:
 			fmt.Println(v)
 		}
@@ -50,19 +50,60 @@ func init_primitives(e *env) {
 	})
 
 	//BOOLEANS
-	e.define_primitive("true", func(x value) value {
-		return prim_val{
-			fn: func(y value) value {
-				return x
-			},
-		}
+	e.setvar("true", closure_val{
+		env:   e,
+		param: "x",
+		body: lambda_node{
+			param: "y",
+			body:  var_node{label: "x"},
+		},
 	})
-	e.define_primitive("false", func(x value) value {
-		return prim_val{
-			fn: func(y value) value {
-				return y
+	e.setvar("false", closure_val{
+		env:   e,
+		param: "x",
+		body: lambda_node{
+			param: "y",
+			body:  var_node{label: "y"},
+		},
+	})
+	e.setvar("not", closure_val{
+		env:   e,
+		param: "x",
+		body: apply_node{
+			arg: var_node{label: "true"},
+			function: apply_node{
+				arg:      var_node{label: "false"},
+				function: var_node{label: "x"},
 			},
-		}
+		},
+	})
+	e.setvar("and", closure_val{
+		env:   e,
+		param: "x",
+		body: lambda_node{
+			param: "y",
+			body: apply_node{
+				arg: var_node{label: "true"},
+				function: apply_node{
+					arg:      var_node{label: "y"},
+					function: var_node{label: "x"},
+				},
+			},
+		},
+	})
+	e.setvar("or", closure_val{
+		env:   e,
+		param: "x",
+		body: lambda_node{
+			param: "y",
+			body: apply_node{
+				arg: var_node{label: "y"},
+				function: apply_node{
+					arg:      var_node{label: "false"},
+					function: var_node{label: "x"},
+				},
+			},
+		},
 	})
 
 	//BASIC MATHS
@@ -129,5 +170,36 @@ func init_primitives(e *env) {
 				return hex_val{val: val}
 			},
 		}
+	})
+
+	// ------- EXTRAS --------
+	e.define_primitive("c", func(v value) value {
+		//CONVERTS HEX TO CHURCH NUMBERS
+		n, ok := v.(hex_val)
+		if !ok {
+			panic("cannot \"Church-ify\" non-hex values (yet).")
+		}
+
+		var body node = var_node{label: "x"}
+		for _ = range n.val {
+			body = apply_node{
+				function: var_node{label: "f"},
+				arg:      body,
+			}
+		}
+
+		return closure_val{
+			env:   e,
+			param: "f",
+			body: lambda_node{
+				param: "x",
+				body:  body,
+			},
+		}
+	})
+	e.setvar("nil", closure_val{
+		param: "x",
+		body:  var_node{label: "x"},
+		env:   e,
 	})
 }

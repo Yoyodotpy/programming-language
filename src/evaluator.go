@@ -37,7 +37,7 @@ type env struct {
 	val    map[string]value
 }
 
-func (e *env) getvar(label string) value {
+func (e *env) getvar(label string) (value, bool) {
 	environment := e
 	var val value
 	var found = false
@@ -45,16 +45,28 @@ func (e *env) getvar(label string) value {
 		val, found = environment.val[label]
 		if !found {
 			if environment.parent == nil {
-				panic("Variable does not exist: " + label)
+				return nil, false
 			}
 			environment = environment.parent
 		}
 	}
-	return val
+	return val, true
 }
 
 func (e *env) setvar(label string, val value) {
-	e.val[label] = val
+	environment := e
+	for {
+		_, found := environment.val[label]
+		if found {
+			environment.val[label] = val
+			return
+		}
+		if environment.parent == nil {
+			e.val[label] = val
+			return
+		}
+		environment = environment.parent
+	}
 }
 
 // ------- Evaluator --------
@@ -64,7 +76,11 @@ func (e *env) eval(node node) value {
 	case hex_node:
 		return hex_val{val: n.val}
 	case var_node:
-		return e.getvar(n.label)
+		v, ok := e.getvar(n.label)
+		if !ok {
+			panic("Variable does not exist: " + n.label)
+		}
+		return v
 	case lambda_node:
 		return closure_val{env: e, param: n.param, body: n.body}
 	case concell_node:
