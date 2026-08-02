@@ -172,6 +172,22 @@ func init_primitives(e *env) {
 		}
 	})
 
+	// ------- CONCELL STUFF ---------
+	e.define_primitive("head", func(v value) value {
+		c, ok := v.(concell_val)
+		if !ok {
+			panic("Head function only takes a concell value")
+		}
+		return c.val1
+	})
+	e.define_primitive("tail", func(v value) value {
+		c, ok := v.(concell_val)
+		if !ok {
+			panic("Head function only takes a concell value")
+		}
+		return c.val2
+	})
+
 	// ------- EXTRAS --------
 	e.define_primitive("c", func(v value) value {
 		//CONVERTS HEX TO CHURCH NUMBERS

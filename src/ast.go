@@ -198,23 +198,12 @@ func (p *parser) parse_do() node {
 	args = args[1:]
 
 	for _, cur := range args {
-		def_node, is_def := cur.(define_node)
-		if is_def {
-			node = apply_node{
-				function: lambda_node{
-					param: def_node.label,
-					body:  node,
-				},
-				arg: def_node.value,
-			}
-		} else {
-			node = apply_node{
-				function: lambda_node{
-					param: "_",
-					body:  node,
-				},
-				arg: cur,
-			}
+		node = apply_node{
+			function: lambda_node{
+				param: "_",
+				body:  node,
+			},
+			arg: cur,
 		}
 	}
 	return node

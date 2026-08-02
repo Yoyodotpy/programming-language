@@ -69,6 +69,10 @@ func (e *env) setvar(label string, val value) {
 	}
 }
 
+func (e *env) bind(label string, val value) {
+	e.val[label] = val
+}
+
 // ------- Evaluator --------
 
 func (e *env) eval(node node) value {
@@ -118,7 +122,7 @@ func (n apply_node) apply_eval(e *env) value {
 			parent: v.env,
 			val:    make(map[string]value),
 		}
-		envi.setvar(v.param, arg)
+		envi.bind(v.param, arg)
 		return envi.eval(v.body)
 	default:
 		panic("Attempted to run a non-function")
