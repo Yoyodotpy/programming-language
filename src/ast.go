@@ -8,6 +8,7 @@ import (
 // NODE TYPES
 type node interface {
 	is_node()
+	free_vars() []string
 }
 
 type hex_node struct {
@@ -44,6 +45,33 @@ func (n lambda_node) is_node()  {}
 func (n apply_node) is_node()   {}
 func (n concell_node) is_node() {}
 func (n define_node) is_node()  {}
+
+func (n hex_node) free_vars() []string {
+	return nil
+}
+func (n var_node) free_vars() []string {
+	return []string{n.label}
+}
+func (n apply_node) free_vars() []string {
+	return slices.Concat(n.function.free_vars(), n.arg.free_vars())
+}
+func (n concell_node) free_vars() []string {
+	return slices.Concat(n.val1.free_vars(), n.val2.free_vars())
+}
+func (n define_node) free_vars() []string {
+	return n.value.free_vars()
+}
+func (n lambda_node) free_vars() []string {
+	body_vars := n.body.free_vars()
+	var result []string
+
+	for _, v := range body_vars {
+		if v != n.param {
+			result = append(result, v)
+		}
+	}
+	return result
+}
 
 // ACTUAL AST CODE
 

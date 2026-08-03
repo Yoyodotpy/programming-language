@@ -1,3 +1,2 @@
-(nil = (val:
-        val)
-)
+(nil = (val:val))
+(nil 54)

@@ -14,15 +14,10 @@ func main() {
 	}
 	ast := p.parse()
 
-	global_env := &env{
-		parent: nil,
-		val:    make(map[string]value),
-	}
-	init_primitives(global_env)
+	comp := new_compiler()
+	llvm := comp.compile_program(ast)
 
-	for _, n := range ast {
-		global_env.eval(n)
-	}
+	fmt.Println(llvm)
 }
 
 func print_ast(n node) string {
