@@ -2,8 +2,26 @@ package main
 
 /*
 #include <stdlib.h>
-*/
+#include <stdint.h>
 
+typedef struct Value {
+	int8_t tag;
+	uint64_t payload;
+} Value;
+
+typedef Value* (*lambda_func_t)(void* env, Value* arg);
+
+typedef struct Closure {
+	lambda_func_t fn;
+	void* env;
+} Closure;
+
+static Value* call_closure(Value* closure_val, Value* arg) {
+	if (!closure_val || closure_val->tag != 2) return arg;
+	Closure* cl = (Closure*)(closure_val->payload);
+	return cl->fn(cl->env, arg);
+}
+*/
 import "C"
 import (
 	"fmt"
@@ -21,12 +39,12 @@ type concell struct {
 }
 
 const (
-	hex_tag     int8 = 0
-	con_tag     int8 = 1
-	closure_tag int8 = 2
+	hex_tag int8 = 0
+	con_tag int8 = 1
+
+// closure_tag int8 = 2
 )
 
-// HELPER FUNCTIONS
 func alloc_val(tag int8, payload uint64) *value {
 	v := (*value)(C.malloc(C.size_t(unsafe.Sizeof(value{}))))
 	v.tag = tag
@@ -39,64 +57,70 @@ func main() {}
 // CONCELLS
 
 //export head
-func head(v *value) *value {
-	concell := (*concell)(unsafe.Pointer(&v.payload))
-	return concell.val1
+func head(env unsafe.Pointer, ptr unsafe.Pointer) unsafe.Pointer {
+	v := (*value)(ptr)
+	concell := (*concell)(unsafe.Pointer(uintptr(v.payload)))
+	return unsafe.Pointer(concell.val1)
 }
 
 //export tail
-func tail(v *value) *value {
-	concell := (*concell)(unsafe.Pointer(&v.payload))
-	return concell.val2
+func tail(env unsafe.Pointer, ptr unsafe.Pointer) unsafe.Pointer {
+	v := (*value)(ptr)
+	concell := (*concell)(unsafe.Pointer(uintptr(v.payload)))
+	return unsafe.Pointer(concell.val2)
 }
 
 // BASIC MATHS
 
 //export go_add
-func go_add(v *value) *value {
-	concell := (*concell)(unsafe.Pointer(&v.payload))
+func go_add(env unsafe.Pointer, ptr unsafe.Pointer) unsafe.Pointer {
+	v := (*value)(ptr)
+	concell := (*concell)(unsafe.Pointer(uintptr(v.payload)))
 
 	x := int64(concell.val1.payload)
 	y := int64(concell.val2.payload)
 
-	return alloc_val(0, uint64(x+y))
+	return unsafe.Pointer(alloc_val(0, uint64(x+y)))
 }
 
 //export go_mult
-func go_mult(v *value) *value {
-	concell := (*concell)(unsafe.Pointer(&v.payload))
+func go_mult(env unsafe.Pointer, ptr unsafe.Pointer) unsafe.Pointer {
+	v := (*value)(ptr)
+	concell := (*concell)(unsafe.Pointer(uintptr(v.payload)))
 
 	x := int64(concell.val1.payload)
 	y := int64(concell.val2.payload)
 
-	return alloc_val(0, uint64(x*y))
+	return unsafe.Pointer(alloc_val(0, uint64(x*y)))
 }
 
 //export go_min
-func go_min(v *value) *value {
-	concell := (*concell)(unsafe.Pointer(&v.payload))
+func go_min(env unsafe.Pointer, ptr unsafe.Pointer) unsafe.Pointer {
+	v := (*value)(ptr)
+	concell := (*concell)(unsafe.Pointer(uintptr(v.payload)))
 
 	x := int64(concell.val1.payload)
 	y := int64(concell.val2.payload)
 
-	return alloc_val(0, uint64(x-y))
+	return unsafe.Pointer(alloc_val(0, uint64(x-y)))
 }
 
 //export go_div
-func go_div(v *value) *value {
-	concell := (*concell)(unsafe.Pointer(&v.payload))
+func go_div(env unsafe.Pointer, ptr unsafe.Pointer) unsafe.Pointer {
+	v := (*value)(ptr)
+	concell := (*concell)(unsafe.Pointer(uintptr(v.payload)))
 
 	x := int64(concell.val1.payload)
 	y := int64(concell.val2.payload)
 
-	return alloc_val(0, uint64(x/y))
+	return unsafe.Pointer(alloc_val(0, uint64(x/y)))
 }
 
-//BOOLEAN OPERATORS
 //EXTRAS
 
 //export print
-func print(v *value) *value {
+func print(env unsafe.Pointer, ptr unsafe.Pointer) unsafe.Pointer {
+	v := (*value)(ptr)
 	if v == nil {
 		return nil
 	}
@@ -114,7 +138,7 @@ func print(v *value) *value {
 				break
 			}
 
-			concell := (*concell)(unsafe.Pointer(&cur.payload))
+			concell := (*concell)(unsafe.Pointer(uintptr(cur.payload)))
 
 			if concell.val1 != nil && concell.val1.tag == hex_tag {
 				list = append(list, int64(concell.val1.payload))
@@ -139,5 +163,33 @@ func print(v *value) *value {
 	default:
 		fmt.Println("<closure or unknown>")
 	}
-	return v
+	return ptr
+}
+
+//export go_repeat
+func go_repeat(env unsafe.Pointer, ptr unsafe.Pointer) unsafe.Pointer {
+	v := (*value)(ptr)
+	if v == nil {
+		return nil
+	}
+
+	c := (*concell)(unsafe.Pointer(uintptr(v.payload)))
+
+	if c.val1 == nil || c.val1.tag != hex_tag {
+		return nil
+	}
+
+	count := int64(c.val1.payload)
+	fn_val := c.val2
+	var last_res *value = nil
+	for range int64(count) {
+		dummy := alloc_val(0, 0)
+		res, _ := C.call_closure(
+			(*C.Value)(unsafe.Pointer(fn_val)),
+			(*C.Value)(unsafe.Pointer(dummy)),
+		)
+		last_res = (*value)(unsafe.Pointer(res))
+	}
+
+	return unsafe.Pointer(last_res)
 }

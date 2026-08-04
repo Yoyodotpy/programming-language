@@ -1,13 +1,17 @@
+(add = (x, y: (go_add [x y])))
+(repeat = (n, f: (go_repeat [n f])))
+
 (2back = 0)
 (1back = 1)
+(cur = 0)
 
 (fibo = (times:
-    (((c times) (dummy: (do
+    (repeat times (dummy: (do
         (cur = (add 2back 1back))
         (2back = 1back)
         (1back = cur)
         (print cur)
-    ))) nil)
+    )))
 ))
 
 (fibo 50)
