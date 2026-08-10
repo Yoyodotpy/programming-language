@@ -1,8 +1,10 @@
-(running = true)
+running := true
 
-(print_if_running = (text,times:(running (do
-        ((c times) print text)
-        (print 4)
-    )))
-)
-(print_if_running "hello world",20)
+print-if-running := lb text times: {
+    running {
+        times (print text)
+        print 4
+    } nil
+}
+
+print-if-running "hello world" 20

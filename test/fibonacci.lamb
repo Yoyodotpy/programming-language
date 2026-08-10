@@ -1,12 +1,13 @@
-(2back = 0)
-(1back = 1)
+2back := 0
+1back := 1
 
-(fibo = (times:
-    (((c times) (dummy: (do
-        (cur = (add 2back 1back))
-        (2back = 1back)
-        (1back = cur)
-        (print cur)
-    ))) nil)
-))
-(fibo 14)
+fibo := lb times: {
+    times {
+        cur := (add 2back 1back)
+        2back = 1back
+        1back = cur
+        print cur
+    } nil
+}
+
+fibo 14
