@@ -45,22 +45,22 @@ Example programming excerpt:
 (print_if_running "hello world",20)
 ```
 
-#Installation
+# Installation
 
-###Linux and OS-X
+### Linux and OS-X
 
 Simply run this command in a shell:
 ```
 curl -sL https://raw.githubusercontent.com/Yoyodotpy/programming-language/main/install.sh | sh
 ```
 
-###Windows
+### Windows
 
 Run this command in a PowerShell window:
 ```
 irm https://raw.githubusercontent.com/Yoyodotpy/programming-language/main/install.ps1 | iex
 ```
 
-#Quick Start
+# Quick Start
 
 Once you've installed the interpretter binary in the current folder, you can easily make custom scripts like a "hello world" or "fibonacci" program. When you install it, you also get two files containing example code, which can be useful references for your first script. You can look at the top of this readme for an overview of the syntax.
