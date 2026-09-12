@@ -19,10 +19,11 @@ Goal of the language: To make a usable functional programming language with as f
         Ex. : 12 -> 'C'
 
     While these two(three?) datatypes aren't strictly required for the programming language to be turing complete and theoretically usable with a perfect cpu and infinite ram, modern cpus aren't designed to run complex pure untyped functional programs, so I decided to add these datatypes as a compromise to allow the programming language to run moderately quickly on modern cpus but still follow the base logic of lambda calculus.
+
+    Example of use to simulate other datatypes:
     "hello world" -> ['68' '65' '6C' '6C' '6F' '20' '77' '6F' '72' '6C' '64']
 
-
-Language will feature a "standard library" that translates common programming words into their proper lambda calculus functions, like True and False or nil. To allow for low-level programming as that is the eventual goal of the programming language, it will have basic ram management commands (look into ways to do it in a lambda-like way) built-in, hopefully being the only built-in functions/keywords that aren't just lambda functions.
+Language will feature a "standard library" that translates common programming words into their proper lambda calculus functions, like True and False or nil.
 
 (True = (x,y:x))
 (False = (x,y:y))
@@ -30,11 +31,11 @@ Language will feature a "standard library" that translates common programming wo
 
 Example programming excerpt:
 
-(running = True)
+(running = true)
 
-(print_if_running = (text:(running (dolist [
-        (print text)
-        (print "program ran and sent user text")
-    ])))
+(print_if_running = (text,times:(running (do
+        ((c times) print text)
+        (print 4)
+    )))
 )
-(print_if_running "hello world")
+(print_if_running "hello world",20)
