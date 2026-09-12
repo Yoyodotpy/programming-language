@@ -28,11 +28,11 @@ Goal of the language: To make a usable functional programming language with as f
     "hello world" -> ['68' '65' '6C' '6C' '6F' '20' '77' '6F' '72' '6C' '64']
 
 Language will feature a "standard library" that translates common programming words into their proper lambda calculus functions, like True and False or nil.
-
+```
 (True = (x,y:x))
 (False = (x,y:y))
 (nil = (x:x))
-
+```
 Example programming excerpt:
 ```
 (running = true)
@@ -44,3 +44,23 @@ Example programming excerpt:
 )
 (print_if_running "hello world",20)
 ```
+
+#Installation
+
+###Linux and OS-X
+
+Simply run this command in a shell:
+```
+curl -sL https://raw.githubusercontent.com/Yoyodotpy/programming-language/main/install.sh | sh
+```
+
+###Windows
+
+Run this command in a PowerShell window:
+```
+irm https://raw.githubusercontent.com/Yoyodotpy/programming-language/main/install.ps1 | iex
+```
+
+#Quick Start
+
+Once you've installed the interpretter binary in the current folder, you can easily make custom scripts like a "hello world" or "fibonacci" program. When you install it, you also get two files containing example code, which can be useful references for your first script. You can look at the top of this readme for an overview of the syntax.
