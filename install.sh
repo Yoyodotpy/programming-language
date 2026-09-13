@@ -13,7 +13,7 @@ case "$ARCH" in
 esac
 
 case "$OS" in
-    darwin) OS="osx" ;;
+    darwin) OS="darwin" ;;
     linux) OS="linux" ;;
     *) echo "Unsupported operating system: $OS" && exit 1 ;;
 esac
@@ -29,8 +29,8 @@ curl -sL "$URL" -o gfpl
 chmod +x ./gfpl
 
 echo "downloading example scripts..."
-curl -sLO https://raw.githubusercontent.com/Yoyodotpy/programming-language/refs/heads/main/test/fibonacci.lamb
-curl -sLO https://raw.githubusercontent.com/Yoyodotpy/programming-language/refs/heads/main/test/hello_world_complicated.lamb
+curl -sLO https://raw.githubusercontent.com/Yoyodotpy/programming-language/refs/heads/main/examples/fibonacci.gfpl
+curl -sLO https://raw.githubusercontent.com/Yoyodotpy/programming-language/refs/heads/main/examples/hello_world_complicated.gfpl
 
 echo "successfully downloaded gfpl and example scripts."
 echo "to test gfpl, you can run:"
